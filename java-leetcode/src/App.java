@@ -19,6 +19,14 @@ public class App {
         // mostCompetitiveArray(new int[] { 3, 5, 2, 6 }, 2);
         // smallestSubstring(new String("cbacdcbc"));
         coinChange(new int[] { 1, 2, 5 }, 11);
+        int[][] grid = {
+                { 0, 2, 1, 0 },
+                { 4, 0, 0, 3 },
+                { 1, 0, 0, 4 },
+                { 0, 3, 2, 0 }
+        };
+
+        findMaxFish(grid);
     }
 
     // longest consequtive sum
@@ -270,5 +278,43 @@ public class App {
         }
         return dpArray[amount] > amount ? -1 : dpArray[amount];
     };
+
+    // fish in a pond dfs problem
+
+    // dfs call to check for fish grid by marking the visited cell as 0 when visited
+    public static int findMaxFishDfs(int row, int col, int[][] grid, int ROW, int COL) {
+        // edge case
+        if (row < 0 || col < 0 || row >= ROW || col >= COL || grid[row][col] == 0) {
+            return 0;
+        }
+        int localMaxFishCount = 0;
+        localMaxFishCount += grid[row][col]; // includes the current count of fish
+        grid[row][col] = 0;
+        // recursive call for the adjacent cells
+        int left = findMaxFishDfs(row - 1, col, grid, ROW, COL);
+        int right = findMaxFishDfs(row + 1, col, grid, ROW, COL);
+        int top = findMaxFishDfs(row, col - 1, grid, ROW, COL);
+        int bottom = findMaxFishDfs(row, col + 1, grid, ROW, COL);
+
+        return (left + right + top + bottom + localMaxFishCount);
+    }
+
+    public static int findMaxFish(int[][] grid) {
+        int maxFishCount = 0;
+        int ROW = grid.length;
+        int COL = grid[0].length;
+
+        for (int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                int currGridVal = grid[i][j];
+                if (currGridVal > 0) {
+                    maxFishCount = Math.max(maxFishCount, findMaxFishDfs(i, j, grid, ROW, COL));
+                }
+
+            }
+        }
+
+        return maxFishCount;
+    }
 
 }

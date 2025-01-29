@@ -26,7 +26,8 @@ public class App {
                 { 0, 3, 2, 0 }
         };
 
-        findMaxFish(grid);
+        // findMaxFish(grid);
+        pushDominoes(new String(".L.R...LR..L.."));
     }
 
     // longest consequtive sum
@@ -317,4 +318,66 @@ public class App {
         return maxFishCount;
     }
 
+    // pushing dominoes problem
+    public static String pushDominoes(String dominoes) {
+        StringBuilder result = new StringBuilder();
+        char[] domChars = dominoes.toCharArray();
+        char[] resultChars = new char[domChars.length];
+        Arrays.fill(resultChars, ' ');
+        // for storing the forces of motion for left and right
+        int[] left = new int[domChars.length];
+        Arrays.fill(left, 0);
+        int[] right = new int[domChars.length];
+        Arrays.fill(right, 0);
+
+        int charForce = 0;
+
+        // right
+        for (int i = 0; i < domChars.length; i++) {
+            char currChar = domChars[i];
+            if (currChar == 'R') {
+                charForce = domChars.length;
+            } else if (currChar == '.') {
+                charForce--;
+            } else {
+                charForce = 0;
+            }
+            right[i] = Math.max(0, charForce);
+        }
+        ;
+        // left
+        for (int i = domChars.length - 1; i >= 0; i--) {
+            char currChar = domChars[i];
+            if (currChar == 'L') {
+                charForce = domChars.length;
+            } else if (currChar == '.') {
+                charForce--;
+            } else {
+                charForce = 0;
+            }
+            left[i] = Math.max(0, charForce);
+        }
+        ;
+        // populating the array
+        for (int i = 0; i < resultChars.length; i++) {
+            int leftVal = left[i];
+            int rightVal = right[i];
+
+            if (leftVal > rightVal) {
+                resultChars[i] = 'L';
+            } else if (rightVal > leftVal) {
+                resultChars[i] = 'R';
+            } else {
+                resultChars[i] = '.';
+            }
+
+        }
+        ;
+        for (int i = 0; i < resultChars.length; i++) {
+            result.append(resultChars[i]);
+        }
+        return result.toString();
+    }
+
+    // ".L.R...LR..L.."
 }

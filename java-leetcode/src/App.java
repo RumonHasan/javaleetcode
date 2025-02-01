@@ -27,7 +27,20 @@ public class App {
         };
 
         // findMaxFish(grid);
-        pushDominoes(new String(".L.R...LR..L.."));
+        // pushDominoes(new String(".L.R...LR..L.."));
+        // optimalStringPartition(new String("abacaba"));
+        //maximumSubarraySum(new int[] { 1, 5, 4, 2, 9, 9, 9 }, 3);
+        maximumChunksSubarraySorted(new int[] {1,0,2,3,4});
+        longestStringChain(new String[] {"a","b","ba","bca","bda","bdca"});
+        int[][] matrix = {
+                {0, 0, 0, 0},
+                {1, 0, 1, 0},
+                {0, 1, 1, 0},
+                {0, 0, 0, 0}
+        };
+
+        numberOfEnclaves(matrix);
+
     }
 
     // longest consequtive sum
@@ -380,4 +393,192 @@ public class App {
     }
 
     // ".L.R...LR..L.."
+
+    public static int optimalStringPartition(String s) {
+        char[] str = s.toCharArray();
+        HashSet<Character> set = new HashSet<>();
+        int partitionCounter = 0;
+
+        for (int i = 0; i < str.length; i++) {
+            char currChar = str[i];
+
+            // if set has a char already then increase counter and clear set
+            if (set.contains(currChar)) {
+                partitionCounter++;
+                set.clear();
+            }
+
+            // add to set
+            set.add(currChar); // for next partition
+            if (i == str.length - 1) {
+                partitionCounter++;
+            }
+
+        }
+
+        return partitionCounter;
+    }
+
+    // checking for max sum when subarray length is distinct
+    public static long maximumSubarraySum(int[] nums, int k) {
+        long maxSum = 0;
+        Map<Integer, Integer> map = new HashMap<>(); // Using Integer is sufficient for counts
+        long localSum = 0;
+
+        // Setting initial subarray count
+        for (int i = 0; i < k; i++) {
+            localSum += (long) nums[i]; // Cast to long before adding
+            map.merge(nums[i], 1, Integer::sum);
+        }
+
+        maxSum = map.size() == k ? localSum : 0; // Initial max Sum
+        int start = 0;
+
+        for (int i = k; i < nums.length; i++) {
+            int currNum = nums[i];
+            int startNum = nums[start];
+
+            localSum += currNum;
+            localSum -= startNum;
+
+            // here in case of map in java.. the key entry is removed if it returns null
+            // since it returns null
+            map.merge(startNum, -1, (oldValue, one) -> {
+                int newValue = oldValue + one;
+                return newValue == 0 ? null : newValue;
+            });
+
+            map.merge(currNum, 1, Integer::sum);
+
+            if (map.size() == k) {
+                maxSum = Math.max(localSum, maxSum);
+            }
+            start++;
+        }
+
+        return maxSum;
+
+    }
+
+    // question to find the maximum chunks that can be reconnected to make a new subarray
+    public static int maximumChunksSubarraySorted(int[] arr){
+        int maxChunks = 1; // by default there is always a single partition
+        List<Integer> prefixMax = new ArrayList<>();
+        int[] suffixMin = new int[arr.length];
+        Arrays.fill(suffixMin, 0);
+        suffixMin[suffixMin.length - 1] = arr[arr.length - 1]; // initialising with the last element for min calculation
+
+        // getting the prefix max from left to right
+        for(int i = 0; i < arr.length; i++){
+            if(i == 0){
+                prefixMax.add(arr[i]);
+            }else{
+                if(prefixMax.getLast() < arr[i]){
+                    prefixMax.add(arr[i]);
+                }else{
+                    prefixMax.add(prefixMax.getLast());
+                }
+            }
+        }
+        // getting the suffix min so will start from the right side biggest to smallest left side
+        for(int i = arr.length - 2; i >= 0; i--){
+            int currNum = arr[i];
+            suffixMin[i] = Math.min(currNum, suffixMin[i + 1]);
+        };
+        // getting the max chunks
+        for(int i = 1; i < arr.length; i++){
+            int rightSmallest = suffixMin[i];
+            int currElement = prefixMax.get(i - 1);
+            // if the right smallest is bigger than left side then its a possible partition
+            if(currElement <= rightSmallest){
+                maxChunks++;
+            }
+        }
+
+        return maxChunks;
+    }
+
+
+    // getting longest string chain
+    // note: dfs should be applied on every word as the starting point of the chain
+    public static int longestStringChain(String[] words){
+        int maxChain = 0;
+        HashMap<String, Integer> map = new HashMap<>();
+        String[] sortedWords = Arrays.stream(words). // sorting based on length to make sure the shortest words are at the beginning
+                sorted((a, b)-> b.length() - a.length()).toArray(String[]::new);
+        HashMap<Integer, Integer> memo = new HashMap<>();
+        // populating the hash map with indices of the words to allow starting point
+        for(int i = 0; i < sortedWords.length; i++){
+            String word = sortedWords[i];
+            map.put(word, i);
+        };
+        // running the dfs class for checking each and every starting point for the longest chain
+        for(int i = 0; i < sortedWords.length; i++){
+            int startingPoint = i;
+            maxChain = Math.max(maxChain, dfsLongestStringChain(startingPoint, sortedWords, map, memo));
+        }
+        return maxChain;
+    }
+    // dfs function for getting the longest chain from a starting point for every single word
+   public static int dfsLongestStringChain(int start, String[] sortedWords, HashMap<String, Integer >map, HashMap<Integer, Integer>memo){
+        if(start >= sortedWords.length){ // if the index is out of range then range becomes 0
+            return 0;
+        }
+        if(memo.containsKey(start)){
+            return memo.get(start);
+        }
+        int localChainCounter = 1;// default first chain value
+        // skip one letter
+        for(int skipIndex = 0; skipIndex < sortedWords[start].length(); skipIndex++){
+            // slice to check whether it is available in map or not
+            String slice = sortedWords[start].substring(0, skipIndex) +
+                    sortedWords[start].substring(skipIndex + 1);
+            if(map.containsKey(slice)){
+                // get the max sub chain counter
+                localChainCounter = Math.max(localChainCounter, 1 + dfsLongestStringChain(map.get(slice), sortedWords, map, memo));
+            }
+        }
+        // storing the length inside memo that has already been found
+        memo.put(start, localChainCounter);
+        return localChainCounter;
+    }
+
+
+    // using dfs and checking whether the number of 1s are within the boundary region or not
+    public static int numberOfEnclaves(int[][] grid){
+        int countEnclaves = 0;
+        int COL = grid[0].length;
+        int ROW = grid.length;
+        // only run the dfs when the indices are not within the boundary
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                if(i == 0 || j == 0 || i == ROW -1 || j == COL - 1){
+                    if(grid[i][j] == 1){
+                       dfsNumberOfEnclaves(i, j, grid, ROW, COL);
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                if(grid[i][j] == 1){
+                    countEnclaves++;
+                }
+            }
+        }
+        return countEnclaves;
+    }
+
+    public static void  dfsNumberOfEnclaves(int row, int col, int[][] grid, int ROW, int COL){
+        // return case
+        if(row >= ROW || row < 0 || col >= COL || col < 0 || grid[row][col] == 0){
+            return ;
+        }
+        grid[row][col] = 0;
+     dfsNumberOfEnclaves(row - 1,col , grid, ROW, COL);
+       dfsNumberOfEnclaves(row + 1,col , grid, ROW, COL);
+       dfsNumberOfEnclaves(row ,col - 1 , grid, ROW, COL);
+     dfsNumberOfEnclaves(row,col + 1 , grid, ROW, COL);
+
+    }
 }

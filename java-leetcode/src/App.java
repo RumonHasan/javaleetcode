@@ -17,29 +17,44 @@ public class App {
         // };
         // maxAreaOfIsland(grid);
         // mostCompetitiveArray(new int[] { 3, 5, 2, 6 }, 2);
-        // smallestSubstring(new String("cbacdcbc"));
-        coinChange(new int[] { 1, 2, 5 }, 11);
-        int[][] grid = {
-                { 0, 2, 1, 0 },
-                { 4, 0, 0, 3 },
-                { 1, 0, 0, 4 },
-                { 0, 3, 2, 0 }
-        };
+//        // smallestSubstring(new String("cbacdcbc"));
+//        coinChange(new int[] { 1, 2, 5 }, 11);
+//        int[][] grid = {
+//                { 0, 2, 1, 0 },
+//                { 4, 0, 0, 3 },
+//                { 1, 0, 0, 4 },
+//                { 0, 3, 2, 0 }
+//        };
 
         // findMaxFish(grid);
         // pushDominoes(new String(".L.R...LR..L.."));
         // optimalStringPartition(new String("abacaba"));
         //maximumSubarraySum(new int[] { 1, 5, 4, 2, 9, 9, 9 }, 3);
-        maximumChunksSubarraySorted(new int[] {1,0,2,3,4});
-        longestStringChain(new String[] {"a","b","ba","bca","bda","bdca"});
-        int[][] matrix = {
-                {0, 0, 0, 0},
-                {1, 0, 1, 0},
-                {0, 1, 1, 0},
-                {0, 0, 0, 0}
+//        maximumChunksSubarraySorted(new int[] {1,0,2,3,4});
+//        longestStringChain(new String[] {"a","b","ba","bca","bda","bdca"});
+//        int[][] matrix = {
+//                {0, 0, 0, 0},
+//                {1, 0, 1, 0},
+//                {0, 1, 1, 0},
+//                {0, 0, 0, 0}
+//        };
+//
+//        numberOfEnclaves(matrix);
+//        int[][] farmland = {
+//                {1, 0, 0},
+//                {0, 1, 1},
+//                {0, 1, 1}
+//        };
+//        groupFarmlands(farmland);
+        longestMonotonicSubarray(new int [] {1,4,3,3,2});
+        char[][] board = {
+                {'X', 'X', 'X', 'X'},
+                {'X', 'O', 'O', 'X'},
+                {'X', 'X', 'O', 'X'},
+                {'X', 'O', 'X', 'X'}
         };
+        solve(board);
 
-        numberOfEnclaves(matrix);
 
     }
 
@@ -579,6 +594,150 @@ public class App {
        dfsNumberOfEnclaves(row + 1,col , grid, ROW, COL);
        dfsNumberOfEnclaves(row ,col - 1 , grid, ROW, COL);
      dfsNumberOfEnclaves(row,col + 1 , grid, ROW, COL);
+
+    }
+
+    // grouping number of farmlands -> dfs problems where you have to traverse and group farmland indices
+    // for  keeping track of the max bottom right col and row index
+
+
+    // main function to check
+    public static int[][] groupFarmlands(int[][] land){
+        List<List<Integer>> list = new ArrayList<>();
+        int ROW = land.length;
+        int COL = land[0].length;
+
+        // dfs helper class
+        class DfsFarmlandHelper{
+            int bottom_right_row_index = 0;
+            int bottom_right_col_index = 0;
+            // main dfs function
+            void dfsFarmland(int row, int col, int [][] land){
+                if(row == land.length || col == land[0].length || land[row][col] == 0){ // just ends the condition
+                    return;
+                }
+                land[row][col] = 0;
+                bottom_right_row_index = Math.max(bottom_right_row_index, row);
+                bottom_right_col_index = Math.max(bottom_right_col_index, col);
+                // recursive call
+                dfsFarmland(row + 1, col, land);
+                dfsFarmland(row, col + 1, land);
+            }
+        }
+
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                if(land[i][j] == 1){ // start dfs when the farmland is found
+                    // dfs instantiation
+                    DfsFarmlandHelper dfsFarmland = new DfsFarmlandHelper();
+                    // initial value of the bottom indices
+                    dfsFarmland.bottom_right_row_index = i;
+                    dfsFarmland.bottom_right_col_index = j;
+                    List<Integer> subList = new ArrayList<>(); // adding the initial indices
+                    subList.add(i);
+                    subList.add(j);
+                    // running dfs solution
+                    dfsFarmland.dfsFarmland(i, j, land); // passing the land to update it
+                    // adding bottom indices to sublist
+                    subList.add(dfsFarmland.bottom_right_row_index);
+                    subList.add(dfsFarmland.bottom_right_col_index);
+                    list.add(subList); // adding to the final list
+                }
+            }
+        }
+        // for printing list into a new int matrix
+        int [][] result = new int[list.size()][4];// result int matrix dimension;
+        for(int i = 0; i < list.size(); i++){
+            int [] local = new int[list.get(i).size()];
+            for(int j = 0; j < list.get(i).size(); j++){
+                local[j] = list.get(i).get(j);
+            }
+            result[i] = local;
+        }
+        return result;
+    }
+
+
+    // longest monotonic subarray
+    public static int longestMonotonicSubarray(int[] nums){
+        int counter = 0;
+        // longest increasing subarray
+        for(int i = 0; i < nums.length; i++){
+            int localCounter = 1;
+            for(int j = i + 1; j < nums.length; j++){
+                int curr = nums[j];
+                int prev = nums[j - 1];
+
+                if(curr > prev){
+                    localCounter++;
+                }else{
+                    break;
+                }
+            }
+            counter = Math.max(counter, localCounter);
+        }
+        // longest decreasing subarray
+        for(int i = 0; i < nums.length; i++){
+            int localCounter = 1;
+            for(int j = i + 1; j < nums.length; j++){
+                int curr = nums[j];
+                int prev = nums[j - 1];
+
+                if(curr < prev){
+                    localCounter++;
+                }else{
+                    break;
+                }
+            }
+            counter = Math.max(counter, localCounter);
+        }
+
+        return counter;
+    }
+
+    // surrounded regions in leetcode
+    public static void solve(char[][] board) {
+        int ROW = board.length;
+        int COL = board[0].length;
+        // dfs class helper
+        class DfsHelper{
+            int ROW = board.length;
+            int COL = board[0].length;
+            void dfsSurround(int row, int col, char[][]board){
+                if(row < 0 || col < 0 || row >= ROW || col >= COL || board[row][col] != 'O' ){ // since its in the middle no need to check the boundaries
+                    return;
+                }
+                board[row][col] = '#';
+                dfsSurround(row + 1, col, board);
+                dfsSurround(row -1 , col, board);
+                dfsSurround(row, col + 1, board);
+                dfsSurround(row, col - 1, board);
+            }
+        }
+
+        // running dfs and changing from the border to #
+        DfsHelper dfsHelper = new DfsHelper();
+        // dfs to converts all Os to # that starts from the border
+        for(int i = 0; i < ROW; i++){
+            dfsHelper.dfsSurround(i, 0, board);
+            dfsHelper.dfsSurround(i, COL - 1, board);
+        };
+        for(int j = 0; j < COL; j++){
+            dfsHelper.dfsSurround(0, j, board);
+            dfsHelper.dfsSurround(ROW - 1, j, board);
+        }
+
+        // printing board
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                char currVal = board[i][j];
+                if(currVal == '#'){
+                    board[i][j] = 'O';
+                }else if(currVal == 'O'){
+                    board[i][j] = 'X';
+                }
+            }
+        }
 
     }
 }

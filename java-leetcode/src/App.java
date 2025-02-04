@@ -820,4 +820,49 @@ public class App {
         return resultIndices;
     }
 
+
+    public static boolean exist(char [][] board, String word){
+        int ROW = board.length;
+        int COL = board[0].length;
+        char[] wordArray = word.toCharArray();
+s
+        // main dfs class
+        class DfsHelper{
+            int ROW = board.length;
+            int COL = board[0].length;
+            // dsf check for every letter
+            boolean searchWord(int row, int col, int index, char[] wordArray){
+                if(index == word.length()){
+                    return true;
+                }
+                // conditions for when its fails return false
+                if(row < 0 || col < 0 || row >= ROW || col >= COL
+                        || board[row][col] != wordArray[index] || board[row][col] == '*'){
+                    return false;
+                }
+                board[row][col] = '*';
+
+                boolean result = searchWord(row + 1, col , index + 1, wordArray)
+                        || searchWord(row - 1, col, index + 1, wordArray)
+                        || searchWord(row, col + 1, index + 1, wordArray)
+                        || searchWord(row, col - 1, index + 1, wordArray);
+                // need to add visited cell to optimize and keep track
+                board[row][col] = wordArray[index]; // setting the letter back for backtracking back to the letter and try a different starting point
+                return result;
+            }
+        }
+
+        DfsHelper dfsHelper = new DfsHelper();
+
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                if(dfsHelper.searchWord(i, j, 0, wordArray)){ // will traverse the whole board from the starting and check
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

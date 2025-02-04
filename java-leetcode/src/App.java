@@ -54,6 +54,14 @@ public class App {
                 {'X', 'O', 'X', 'X'}
         };
         solve(board);
+        int[][] heights = {
+                {1, 2, 2, 3, 5},
+                {3, 2, 3, 4, 4},
+                {2, 4, 5, 3, 1},
+                {6, 7, 1, 4, 5},
+                {5, 1, 1, 2, 4}
+        };
+        pacificWaterFlow(heights);
 
 
     }
@@ -728,16 +736,88 @@ public class App {
         }
 
         // printing board
-        for(int i = 0; i < ROW; i++){
-            for(int j = 0; j < COL; j++){
+        for(int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
                 char currVal = board[i][j];
-                if(currVal == '#'){
+                if (currVal == '#') {
                     board[i][j] = 'O';
-                }else if(currVal == 'O'){
+                } else if (currVal == 'O') {
                     board[i][j] = 'X';
                 }
             }
         }
-
     }
+
+
+    // dfs problem pacific atlantic water flow to check which cells can flow to both pacific and atlantic
+    public static List<List<Integer>> pacificWaterFlow(int[][] heights){
+        List<List<Integer>> resultIndices = new ArrayList<>();
+        int ROW = heights.length;
+        int COL = heights[0].length;
+        boolean [][] pacific = new boolean[ROW][COL];
+        boolean [][] atlantic = new boolean[ROW][COL];
+
+        // populate with false
+        for(boolean[] row: pacific){
+            Arrays.fill(row, false);
+        }
+        for(boolean[] row: atlantic){
+            Arrays.fill(row, false);
+        }
+
+        // main dfs function to check for traversal
+        class DfsHelper{
+            int ROW = heights.length;
+            int COL = heights.length;
+            // main dfs function
+            void pacificflowDfs(int row, int col, boolean[][] ocean, int[][] heights, int prevHeight){
+                if(row < 0 || col < 0 || row >= ROW || col >= COL || ocean[row][col]
+                        || heights[row][col] < prevHeight){ // main condition to check whether prev is bigger or equal or not
+                    return;
+                }
+                ocean[row][col] = true;
+               // prevHeight = heights[row][col]; // updating the previous height with new height after updating
+                // dfs running in all direction
+                // should be updated here since each goes to a different path to control subsequent calls
+                pacificflowDfs(row + 1, col, ocean, heights, heights[row][col]);
+                pacificflowDfs(row, col + 1, ocean, heights,  heights[row][col]);
+                pacificflowDfs(row - 1, col, ocean, heights,  heights[row][col]);
+                pacificflowDfs(row , col - 1, ocean, heights, heights[row][col]);
+            }
+        }
+
+        DfsHelper dfsHelper = new DfsHelper(); // main dfs helper object
+
+        // starting dfs from the left and top border for pacific ocean
+        for(int i = 0; i < COL; i++){
+            dfsHelper.pacificflowDfs(0, i, pacific, heights, heights[0][i]);
+        };
+        for(int i = 0; i < ROW; i++){
+            dfsHelper.pacificflowDfs(i, 0, pacific, heights, heights[i][0]);
+        }
+        // starting dfs from the bottom and right for atlantic ocean
+        for(int i = 0; i < COL; i++){
+            dfsHelper.pacificflowDfs(ROW - 1, i, atlantic, heights, heights[ROW - 1][i]);
+        }
+        for(int i = 0; i < ROW; i++){
+            dfsHelper.pacificflowDfs(i, COL - 1, atlantic, heights, heights[i][ COL - 1]);
+        }
+
+        // printing
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                boolean pacificState = pacific[i][j];
+                boolean atlanticState = atlantic[i][j];
+                if(pacificState && atlanticState){
+                    List<Integer> indices = new ArrayList<>();
+                    indices.add(i);
+                    indices.add(j);
+                    resultIndices.add(indices);
+                }
+            }
+        }
+        // final check for common indices
+        return resultIndices;
+    }
+
 }

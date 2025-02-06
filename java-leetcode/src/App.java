@@ -62,7 +62,7 @@ public class App {
                 {5, 1, 1, 2, 4}
         };
         pacificWaterFlow(heights);
-
+        minimumSubstringInPartition("fabccddg");
 
     }
 
@@ -135,8 +135,8 @@ public class App {
 
     // basic common longest prefix
     public static String longestCommonPrefix(String[] strs) {
-        StringBuilder finalPref = new StringBuilder("");
-        StringBuilder prefix = new StringBuilder("");
+        StringBuilder finalPref = new StringBuilder();
+        StringBuilder prefix = new StringBuilder();
         char[] checkWord = strs[0].toCharArray();
         String[] sliceStrs = Arrays.copyOfRange(strs, 1, strs.length);
         // checking prefix against each word
@@ -167,7 +167,6 @@ public class App {
         if (row < 0 || col < 0 || row >= mainRow || col >= mainCol || grid[row][col] == 0) {
             return 0;
         }
-        ;
 
         grid[row][col] = 0;// updating the existing values to 0 to prevent recount
         // recursive checks for up down left and right
@@ -230,7 +229,6 @@ public class App {
                 map.put(localChar, 1);
             }
         }
-        ;
 
         // populating array list
         for (int i = 0; i < str.length; i++) {
@@ -270,19 +268,16 @@ public class App {
                     flowerbed[index] = 1;
                     counter--;
                 }
-                ;
                 if (index == flowerbed.length - 1 && flowerbed[index - 1] != 1) {
                     flowerbed[index] = 1;
                     counter--;
                 }
-                ;
                 if (index > 0 && index < flowerbed.length - 1 && flowerbed[index - 1] != 1
                         && flowerbed[index + 1] != 1) {
                     flowerbed[index] = 1;
                     counter--;
                 }
             }
-            ;
 
             if (counter == 0) {
                 break;
@@ -314,7 +309,7 @@ public class App {
             }
         }
         return dpArray[amount] > amount ? -1 : dpArray[amount];
-    };
+    }
 
     // fish in a pond dfs problem
 
@@ -380,7 +375,6 @@ public class App {
             }
             right[i] = Math.max(0, charForce);
         }
-        ;
         // left
         for (int i = domChars.length - 1; i >= 0; i--) {
             char currChar = domChars[i];
@@ -393,7 +387,6 @@ public class App {
             }
             left[i] = Math.max(0, charForce);
         }
-        ;
         // populating the array
         for (int i = 0; i < resultChars.length; i++) {
             int leftVal = left[i];
@@ -408,7 +401,6 @@ public class App {
             }
 
         }
-        ;
         for (int i = 0; i < resultChars.length; i++) {
             result.append(resultChars[i]);
         }
@@ -450,7 +442,7 @@ public class App {
 
         // Setting initial subarray count
         for (int i = 0; i < k; i++) {
-            localSum += (long) nums[i]; // Cast to long before adding
+            localSum += nums[i]; // Cast to long before adding
             map.merge(nums[i], 1, Integer::sum);
         }
 
@@ -507,7 +499,7 @@ public class App {
         for(int i = arr.length - 2; i >= 0; i--){
             int currNum = arr[i];
             suffixMin[i] = Math.min(currNum, suffixMin[i + 1]);
-        };
+        }
         // getting the max chunks
         for(int i = 1; i < arr.length; i++){
             int rightSmallest = suffixMin[i];
@@ -534,7 +526,7 @@ public class App {
         for(int i = 0; i < sortedWords.length; i++){
             String word = sortedWords[i];
             map.put(word, i);
-        };
+        }
         // running the dfs class for checking each and every starting point for the longest chain
         for(int i = 0; i < sortedWords.length; i++){
             int startingPoint = i;
@@ -709,8 +701,8 @@ public class App {
         int COL = board[0].length;
         // dfs class helper
         class DfsHelper{
-            int ROW = board.length;
-            int COL = board[0].length;
+            final int ROW = board.length;
+            final int COL = board[0].length;
             void dfsSurround(int row, int col, char[][]board){
                 if(row < 0 || col < 0 || row >= ROW || col >= COL || board[row][col] != 'O' ){ // since its in the middle no need to check the boundaries
                     return;
@@ -729,7 +721,7 @@ public class App {
         for(int i = 0; i < ROW; i++){
             dfsHelper.dfsSurround(i, 0, board);
             dfsHelper.dfsSurround(i, COL - 1, board);
-        };
+        }
         for(int j = 0; j < COL; j++){
             dfsHelper.dfsSurround(0, j, board);
             dfsHelper.dfsSurround(ROW - 1, j, board);
@@ -767,8 +759,8 @@ public class App {
 
         // main dfs function to check for traversal
         class DfsHelper{
-            int ROW = heights.length;
-            int COL = heights.length;
+            final int ROW = heights.length;
+            final int COL = heights.length;
             // main dfs function
             void pacificflowDfs(int row, int col, boolean[][] ocean, int[][] heights, int prevHeight){
                 if(row < 0 || col < 0 || row >= ROW || col >= COL || ocean[row][col]
@@ -791,7 +783,7 @@ public class App {
         // starting dfs from the left and top border for pacific ocean
         for(int i = 0; i < COL; i++){
             dfsHelper.pacificflowDfs(0, i, pacific, heights, heights[0][i]);
-        };
+        }
         for(int i = 0; i < ROW; i++){
             dfsHelper.pacificflowDfs(i, 0, pacific, heights, heights[i][0]);
         }
@@ -825,11 +817,11 @@ public class App {
         int ROW = board.length;
         int COL = board[0].length;
         char[] wordArray = word.toCharArray();
-s
+
         // main dfs class
         class DfsHelper{
-            int ROW = board.length;
-            int COL = board[0].length;
+            final int ROW = board.length;
+            final int COL = board[0].length;
             // dsf check for every letter
             boolean searchWord(int row, int col, int index, char[] wordArray){
                 if(index == word.length()){
@@ -863,6 +855,119 @@ s
         }
 
         return false;
+    }
+
+    // number of islands using dfs recursive approach
+    public static int numberOfIslands(char[][] grid){
+        int ROW = grid.length;
+        int COL = grid[0].length;
+        int counter = 0;
+        // dfs helper
+        class DfsHelper{
+            private final HashSet<String> memoizeSet = new HashSet<>(); // for containing a memoized row or column
+            void searchDfs(int row, int col, char[][] grid){ // main dfs functionality
+                // edge case for if the recursive hits the boundary.
+                String currRow = Integer.toString(row);
+                String currCol = Integer.toString(col);
+                String memoizedCollection = currRow + "-" + currCol;
+
+                if(row < 0 || col < 0 || row >= grid.length
+                        || col >= grid[0].length ||
+                        memoizeSet.contains(memoizedCollection)
+                        || grid[row][col] == '0'){ // set memoization
+                    return;
+                }
+                memoizeSet.add(memoizedCollection); // adding collection path to prevent dfs backwards
+                searchDfs(row, col + 1, grid);
+                searchDfs(row + 1, col, grid);
+                searchDfs(row - 1, col, grid);
+                searchDfs(row, col - 1, grid);
+            }
+        }
+        DfsHelper dfsHelper = new DfsHelper(); // dfs instance
+        // main iteration
+        for(int i = 0; i < ROW; i++){
+            for(int j = 0; j < COL; j++){
+                char currGridPoint = grid[i][j];
+                if(currGridPoint == '1' ){
+                    String currRow = Integer.toString(i);
+                    String currCol = Integer.toString(j);
+                    String memoizedRowCol = currRow + "-" + currCol;
+                    if(!dfsHelper.memoizeSet.contains(memoizedRowCol)){
+                        dfsHelper.searchDfs(i, j, grid);
+                        counter++; // dfs trigger based on a single one
+                    }
+
+                }
+            }
+        }
+     return counter;
+    }
+
+    // getting valid tuple same products
+    public int tupleSameProduct(int[] nums) {
+        long counter = 0;
+        var map = new HashMap<Long, Integer>();
+
+        for(int i =0; i < nums.length; i++){
+            for(int j = i + 1; j< nums.length; j++){
+                long uniquePairProduct = (long)nums[i] * (long)nums[j]; // type casted to double for size
+                if(map.containsKey(uniquePairProduct)){
+                    map.put(uniquePairProduct, map.get(uniquePairProduct) + 1);
+                }else{
+                    map.put(uniquePairProduct, 1);
+                }
+            }
+        }
+    // checking through the map for values and occurences that are over 1
+        for(Map.Entry<Long, Integer> entry: map.entrySet()){
+            if(entry.getValue() > 1){
+                long nVal = entry.getValue();
+                counter += ((nVal *(nVal - 1)) / 2) * 8;
+            }
+        }
+        return (int)counter;
+    }
+
+    //problem to get minimum substring in partition
+    public static int minimumSubstringInPartition(String s){
+        char[] strArray = s.toCharArray();
+        int n = strArray.length;
+        int[] dp = new int[n];
+        Arrays.fill(dp, -1); // Memoization table
+        class DfsHelper {
+            int partitionDfs(int index, char[] strArray, int[] dp) {
+                if (index < 0) return 0;
+                if (dp[index] != -1) return dp[index];
+
+                int ans = Integer.MAX_VALUE;
+                int[] freq = new int[26]; // Frequency array to track occurrences
+                int maxOccurence = 0, minOccurence = Integer.MAX_VALUE;
+                // Iterate backwards and update frequency dynamically
+                for (int j = index; j >= 0; j--) {
+                    freq[strArray[j] - 'a']++; // Incrementally update frequency
+                    // Reset min/max to recompute
+                    maxOccurence = 0;
+                    minOccurence = Integer.MAX_VALUE;
+                    for (int k = 0; k < 26; k++) {
+                        if (freq[k] > 0) {
+                            maxOccurence = Math.max(maxOccurence, freq[k]);
+                            minOccurence = Math.min(minOccurence, freq[k]);
+                        }
+                    }
+                    // If valid partition, recursively call
+                    if (minOccurence == maxOccurence) { // only when valid partition then check  from that index
+                        ans = Math.min(ans, 1 + partitionDfs(j - 1, strArray, dp));
+                    }
+                }
+                dp[index] = ans; // Store result
+                return dp[index];
+            }
+        }
+        DfsHelper dfsHelper = new DfsHelper();
+        return dfsHelper.partitionDfs(n - 1, strArray, dp);
+
+
     }
 
 }

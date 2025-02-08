@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -63,6 +64,12 @@ public class App {
         };
         pacificWaterFlow(heights);
         minimumSubstringInPartition("fabccddg");
+        String[] positive_feedback = {"smart", "brilliant", "studious"};
+        String[] negative_feedback = {"not"};
+        String[] report = {"this student is not studious", "the student is smart"};
+        int[] student_id = {1, 2};
+        int k = 2;
+        topStudents(positive_feedback, negative_feedback, report, student_id, k);
 
     }
 
@@ -949,6 +956,7 @@ public class App {
                     // Reset min/max to recompute
                     maxOccurence = 0;
                     minOccurence = Integer.MAX_VALUE;
+                    // checking for the minimum and maximum occurence
                     for (int k = 0; k < 26; k++) {
                         if (freq[k] > 0) {
                             maxOccurence = Math.max(maxOccurence, freq[k]);
@@ -966,8 +974,157 @@ public class App {
         }
         DfsHelper dfsHelper = new DfsHelper();
         return dfsHelper.partitionDfs(n - 1, strArray, dp);
+    }
 
+    // word break problem using dfs
+    public boolean wordBreak(String s, List<String> wordDict) {
+        Boolean [] dp = new Boolean[s.length()];
+        HashSet<String> set = new HashSet<>(wordDict);
+        // main dfs function
+        class DfsHelper{
+            // general dfs algorithm
+            boolean wordDfs(String str, int index, Boolean[] dp, HashSet<String> set){
+                // edge case 1
+                if(index == str.length()){
+                    return true;
+                }
+                // edge case 2
+                if(dp[index] != null){ // if its true then done
+                    return dp[index];
+                };
+                for(int end = index + 1; end <= str.length(); end++){
+                    if(set.contains(str.substring(index , end)) && wordDfs(str, end, dp, set)){ // checks starting path from every partition
+                        return dp[end] = true;
+                    }
+                }
 
+                return dp[index] = false; // will return false since nothing is found
+            }
+        }
+        DfsHelper dfsHelper = new DfsHelper();
+        return dfsHelper.wordDfs(s, 0, dp, set);
+    }
+
+    // battled ships on board -> need to keep track of the number of ships horizontally and vertically on the board
+    public static int countBattleShips(char[][]board){
+        int shipCounter = 0;
+        int ROW = board.length;
+        int COL = board[0].length;
+
+        class DfsHelper{
+            int ROW = board.length;
+            int COL = board[0].length;
+            // dfs just for converting the existing cells into invalid values
+            void battleShipSearch(int row, int col, char[][] board){
+                // edge case 1
+                if(row <0 || col < 0 || row >= ROW || col >= COL || board[row][col] != 'X'){
+                    return;
+                };
+                board[row][col] = '*';
+                // general dfs
+                battleShipSearch(row + 1, col, board);
+                battleShipSearch(row - 1, col, board);
+                battleShipSearch(row , col + 1, board);
+                battleShipSearch(row, col - 1, board);
+
+            }
+        }
+        DfsHelper dfsHelper = new DfsHelper();
+
+        // iterating the borders
+        for(int i = 0; i < board.length;i ++){
+            for(int j = 0; j < COL; j++){
+                char gridVal = board[i][j];
+                if(gridVal == 'X'){
+                    shipCounter++;
+                    dfsHelper.battleShipSearch(i, j, board);
+                }
+            }
+        }
+        return shipCounter;
+    }
+
+//
+    public static int countCompleteSubarrays(int [] nums){
+        int subCounter = 0;
+        int end = 0;
+        int start = 0;
+        HashSet<Integer> set = new HashSet<>();
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for(int num: nums){
+            set.add(num);
+        };
+        int setSize = set.size();
+        // getting nums length size
+        while(end < nums.length){
+            if(map.containsKey(nums[end])){ // updating the map
+                map.put(nums[end], map.get(nums[end]) + 1);
+            }else{
+                map.put(nums[end], 1);
+            }
+            // todo to check whether size is same or not then calculating the possible subarray permutations
+            while(map.size() == setSize){ // once the condition is equal everything is going be equal from this point onwards
+                subCounter += nums.length - end; // adds to the final length every time
+                // reducing the subarray since everything equal will be added the subarray count
+                if(map.containsKey(nums[start])){
+                    map.put(nums[start], map.get(nums[start]) - 1);
+                    if(map.get(nums[start]) == 0){
+                        map.remove(nums[start]);
+                    }
+                }
+                start++;
+            }
+            end++;
+        }
+
+        return subCounter;
+    }
+
+    // getting the student records and ranking them based on their records
+    public static List<Integer> topStudents(String[] positive_feedback, String[] negative_feedback, String[] report, int[] student_id, int k) {
+        List<List<Integer>> result = new ArrayList<>();
+        List<Integer> finalList = new ArrayList<>();
+        int posPoints = 3;
+        int negPoints = 1;
+
+        HashSet<String> positiveSet = Arrays.stream(positive_feedback)
+                .collect(Collectors.toCollection(HashSet::new));
+        HashSet<String> negativeSet = Arrays.stream(negative_feedback)
+                .collect(Collectors.toCollection((HashSet::new)));
+        HashMap<Integer, Integer> map = new HashMap<>();
+
+        for(int index = 0; index < report.length; index++){
+            String[] reportList = report[index].split(" ");
+            int currStudentId = student_id[index];
+            int points = 0;
+            // traversing reportList
+            for(String word : reportList){
+                if(positiveSet.contains(word)){
+                    points += posPoints;
+                }else if(negativeSet.contains(word)){
+                    points -= negPoints;
+                }
+            }
+            map.put(currStudentId, points); // initialising
+        }
+        for(Map.Entry<Integer, Integer> entry: map.entrySet()){
+            List<Integer> list = new ArrayList<>();
+            list.add(entry.getKey());
+            list.add(entry.getValue());
+            result.add(list);
+        }
+        // sorting the list based on descending order
+        result.sort((a, b) ->{
+            int valComp = Integer.compare(b.get(1), a.get(1));
+            if(valComp != 0){
+                return valComp;
+            }
+            return Integer.compare(a.get(0), b.get(0));
+        });
+        for(int i = 0; i < k; i++){
+            finalList.add(result.get(i).getFirst());
+        }
+        return finalList;
     }
 
 }

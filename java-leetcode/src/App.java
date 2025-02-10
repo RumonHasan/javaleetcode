@@ -62,14 +62,15 @@ public class App {
                 {6, 7, 1, 4, 5},
                 {5, 1, 1, 2, 4}
         };
-        pacificWaterFlow(heights);
-        minimumSubstringInPartition("fabccddg");
-        String[] positive_feedback = {"smart", "brilliant", "studious"};
-        String[] negative_feedback = {"not"};
-        String[] report = {"this student is not studious", "the student is smart"};
-        int[] student_id = {1, 2};
-        int k = 2;
-        topStudents(positive_feedback, negative_feedback, report, student_id, k);
+//        pacificWaterFlow(heights);
+//        minimumSubstringInPartition("fabccddg");
+//        String[] positive_feedback = {"smart", "brilliant", "studious"};
+//        String[] negative_feedback = {"not"};
+//        String[] report = {"this student is not studious", "the student is smart"};
+//        int[] student_id = {1, 2};
+//        int k = 2;
+//        topStudents(positive_feedback, negative_feedback, report, student_id, k);
+        partition("aab");
 
     }
 
@@ -1127,4 +1128,77 @@ public class App {
         return finalList;
     }
 
+    // longest sub without repeating chars
+    public static int longestSubNonRepeating(String s){
+        int longest = 0;
+        HashMap<Character, Integer> map = new HashMap<>();
+        int start = 0;
+        int end = 0;
+        char[] strArray = s.toCharArray();
+
+        while(end < strArray.length){
+            if(map.containsKey(strArray[end])){
+                map.put(strArray[end], map.get(strArray[end]) + 1);
+            }else{
+                map.put(strArray[end], 1);
+            };
+            // reducing if the length is longer than size of map since map should be same size
+            while(end - start + 1 > map.size()){
+                if(map.containsKey(strArray[start])){
+                    map.put(strArray[start], map.get(strArray[start]) - 1);
+                    if(map.get(strArray[start]) == 0){
+                        map.remove(strArray[start]);
+                    }
+                }
+                start++;
+            }
+            // getting the length
+            longest = Math.max(longest, end - start + 1);
+            end++;
+        }
+        return longest;
+    }
+
+
+    // partitioning palindrome using recursive dfs solution
+    public static List<List<String>> partition (String s){
+        List<List<String>> result = new ArrayList<>();
+        char[] strArray = s.toCharArray();
+        // dfs helper
+        class DfsHelper{
+            // simply to run the dfs and update the existing result list of list strings
+            void dfs(int mainIndex , List<String> sublist, List<List<String>> mainList, char[] strArray){
+                if(mainIndex > strArray.length - 1){ // when hits the last then add the list
+                    List<String> sublistCopy = new ArrayList<>(sublist);
+                    mainList.add(sublistCopy);
+                };
+
+                // running dfs within the loop from the string slices
+                for(int j = mainIndex; j < strArray.length; j++){
+                    // running a dfs recursion if starting index for palindrome check
+                    if(palindromeCheck(strArray, mainIndex, j)){
+                        String slice = s.substring(mainIndex, j + 1);
+                        sublist.add(slice);
+                        dfs(j + 1, sublist, result, strArray);
+                        sublist.remove(sublist.size() - 1); // removing last to trigger the dfs call and pop for the backtracking procedure to activate
+                    }
+                }
+            }
+            // for checking when a string is a palindrome
+            boolean palindromeCheck(char[] strArray, int left, int right){
+                while(left <= right){
+                    if(strArray[left] != strArray[right]) return false;
+                    left++;
+                    right--;
+                }
+                return true; // return true by default
+            }
+        }
+        DfsHelper dfsHelper = new DfsHelper();
+        // main dfs call
+        List<String> sublist = new ArrayList<>();
+        dfsHelper.dfs(0, sublist, result, strArray);
+
+        return result;
+    }
 }

@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,7 @@ public class App {
 //        int k = 2;
 //        topStudents(positive_feedback, negative_feedback, report, student_id, k);
         partition("aab");
+        maximumSum(new int[]{229,398,269,317,420,464,491,218,439,153,482,169,411,93,147,50,347,210,251,366,401});
 
     }
 
@@ -1178,6 +1180,7 @@ public class App {
                     // running a dfs recursion if starting index for palindrome check
                     if(palindromeCheck(strArray, mainIndex, j)){
                         String slice = s.substring(mainIndex, j + 1);
+
                         sublist.add(slice);
                         dfs(j + 1, sublist, result, strArray);
                         sublist.remove(sublist.size() - 1); // removing last to trigger the dfs call and pop for the backtracking procedure to activate
@@ -1200,5 +1203,144 @@ public class App {
         dfsHelper.dfs(0, sublist, result, strArray);
 
         return result;
+    }
+
+    // letter case permutation
+    public List<String> letterCasePermutation(String s) {
+        List<String> result = new ArrayList<>();
+        char [] strArray = s.toCharArray();
+        // main dfs function
+        class DfsHelper  {
+            // main dfs function
+            void dfs(char[] strArray, int index, List<String> result){
+                if(index == strArray.length){
+                    result.add(new String(strArray)); // passing the string if its found
+                    return;
+                }
+                // for regular characters that is not an alphabet
+                if(!Character.isAlphabetic(strArray[index])){
+                    dfs(strArray, index + 1, result);
+                    return; // no path after non alphabet since all are numbers
+                }
+
+                // characters that are alphabets
+                strArray[index] = Character.toUpperCase(strArray[index]);
+                dfs(strArray, index + 1, result);
+
+                // lower case
+                strArray[index] = Character.toLowerCase(strArray[index]);
+                dfs(strArray, index + 1, result);
+            }
+        }
+        // general dfs helper object
+        DfsHelper dfsHelper = new DfsHelper();
+        dfsHelper.dfs(strArray, 0, result);
+
+        return result;
+    }
+
+    // subset problem
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+
+        class DfsHelper{
+            void dfs(int index , List<Integer> sublist, List<List<Integer>> result){
+
+                if(sublist.size() >= 0){
+                    List<Integer> copyList = new ArrayList<>(sublist);
+                    result.add(copyList); // adds the sub array but does not stop the recursive call
+                };
+
+                HashSet<Integer> set = new HashSet<>();// initialization
+
+                for(int i = index; i < nums.length; i++){
+                    if(!set.contains(nums[i])){
+                        set.add(nums[i]);
+                        sublist.add(nums[i]);
+                        dfs(i + 1, sublist, result);
+                        sublist.removeLast();
+                    }
+                }
+            }
+        }
+
+        DfsHelper dfsHelper = new DfsHelper();
+
+        List<Integer> list = new ArrayList<>();
+        dfsHelper.dfs(0, list, result);
+
+        return result;
+    }
+
+
+    public String removeOccurrences(String s, String part) {
+        Stack<Character> stack = new Stack<>();
+        for(char c : s.toCharArray()) {
+            stack.push(c);
+            while(stack.size() >= part.length()) {
+                boolean match = true;
+                for(int i = 0; i < part.length(); i++) {
+                    if(stack.get(stack.size() - part.length() + i) != part.charAt(i)) {
+                        match = false;
+                        break;
+                    }
+                }
+                if(match) {
+                    for(int i = 0; i < part.length(); i++) { // popping part.length times since the pattern has been found
+                        stack.pop();
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        StringBuilder result = new StringBuilder();
+        while(!stack.isEmpty()) {
+            result.insert(0, stack.pop());
+        }
+        return result.toString();
+    }
+
+    // maximum sum problem
+    public static int maximumSum(int[] nums) {
+        int maxSum = 0;
+        HashMap<Integer, Integer> map = new HashMap<>();
+        HashMap<Integer, Integer> secondMap = new HashMap<>();
+
+        class Converter{
+            int digitConverter(int num){
+                int localSum = 0;
+                String numStr = Integer.toString(num);
+                for(int i = 0; i < numStr.length(); i++){
+                    int numericVal = Character.getNumericValue(numStr.charAt(i));
+                    localSum += numericVal;
+                }
+                return localSum;
+            }
+        }
+        Converter converter = new Converter();
+        for(int i = 0; i < nums.length; i++){
+            int digitSum = converter.digitConverter(nums[i]);
+            int currMaxNum = map.getOrDefault(digitSum, 0);
+            if(map.containsKey(digitSum)){
+                // main logic is that it checks main max if its bigger then replace main max
+                if(currMaxNum < nums[i]){
+                    map.put(digitSum, nums[i]); // current num becomes max
+                    secondMap.put(digitSum, currMaxNum);
+                    maxSum = Math.max(maxSum, nums[i] + currMaxNum); // updating if there is a bigger max
+
+                }// if not bigger than replace with second max
+                else if(nums[i] > secondMap.getOrDefault(digitSum, 0)){ // if its bigger than second
+                    secondMap.put(digitSum, nums[i]); // update second and await for first
+                    maxSum = Math.max(maxSum, currMaxNum + nums[i]);
+                }
+            }else{
+                map.put(digitSum, nums[i]);
+                secondMap.put(digitSum, 0);
+            }
+
+        }
+
+        return maxSum == 0 ? -1: maxSum;
     }
 }
